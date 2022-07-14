@@ -8,39 +8,44 @@ import (
 )
 
 type Client struct {
-	id      int
-	conn    net.Conn
-	server  *Server
-	mutex   *sync.Mutex
-	message chan string
+	name   string
+	id     int
+	conn   net.Conn
+	server *Server
+	mutex  *sync.Mutex
 }
 
-func NewClient(id int, conn net.Conn, s *Server) *Client {
+func NewClient(id int, conn net.Conn, s *Server, mtx *sync.Mutex) *Client {
 	return &Client{
-		id:      id,
-		conn:    conn,
-		server:  s,
-		message: make(chan string),
+		id:     id,
+		conn:   conn,
+		server: s,
+		mutex:  mtx,
 	}
 }
 
-func NewClient1(id int, conn net.Conn, s *Server, c chan string) *Client {
-	return &Client{
-		id:      id,
-		conn:    conn,
-		server:  s,
-		message: c,
+func (c *Client) Start() error {
+	c.Send("Insert your name\n")
+	userInput, err := bufio.NewReader(c.conn).ReadString('\n')
+	if err != nil {
+		log.Println("Error reading user input")
+		return err
 	}
+	c.name = userInput[0 : len(userInput)-2]
+	msg := Message{c.name, " присоединился к чату"}
+	c.server.SendAll(msg.String(), c.id)
+	return c.Reading()
 }
 
-func (c *Client) Start() {
+func (c *Client) Reading() error {
 	for {
 		userInput, err := bufio.NewReader(c.conn).ReadString('\n')
 		if err != nil {
 			log.Println("Error reading user input")
+			return err
 		}
-
-		c.server.SendAll(userInput, c.id)
+		msg := Message{c.name, userInput[0 : len(userInput)-2]}
+		c.server.SendAll(msg.String(), c.id)
 	}
 }
 

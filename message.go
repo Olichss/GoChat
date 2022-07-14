@@ -6,5 +6,5 @@ type Message struct {
 }
 
 func (m *Message) String() string {
-	return m.Author + ": " + m.Body
+	return m.Author + ": " + m.Body + "\n"
 }

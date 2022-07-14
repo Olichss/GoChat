@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"sync"
 )
 
 type Server struct {
@@ -34,12 +35,13 @@ func (s *Server) Close() {
 }
 
 func (s *Server) Start() error {
+	mtx := sync.Mutex{}
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
 			log.Print(err)
 		} else {
-			client := NewClient(s.countClient, conn, s)
+			client := NewClient(s.countClient, conn, s, &mtx)
 			s.countClient++
 			s.clients = append(s.clients, client)
 			go client.Start()

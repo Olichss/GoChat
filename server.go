@@ -7,12 +7,8 @@ import (
 )
 
 type Server struct {
-	// messages    []string
-	clients []*Client
-	// host     string
-	// port     string
-	listener net.Listener
-	// mutex       *sync.Mutex
+	clients     []*Client
+	listener    net.Listener
 	countClient int
 }
 

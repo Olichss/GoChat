@@ -8,17 +8,28 @@ import (
 )
 
 type Client struct {
-	id     int
-	conn   net.Conn
-	server *Server
-	mutex  *sync.Mutex
+	id      int
+	conn    net.Conn
+	server  *Server
+	mutex   *sync.Mutex
+	message chan string
 }
 
 func NewClient(id int, conn net.Conn, s *Server) *Client {
 	return &Client{
-		id:     id,
-		conn:   conn,
-		server: s,
+		id:      id,
+		conn:    conn,
+		server:  s,
+		message: make(chan string),
+	}
+}
+
+func NewClient1(id int, conn net.Conn, s *Server, c chan string) *Client {
+	return &Client{
+		id:      id,
+		conn:    conn,
+		server:  s,
+		message: c,
 	}
 }
 
